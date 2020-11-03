@@ -1,25 +1,29 @@
 <template>
-  <v-container class="home">
+  <div class="home">
     <template>
       <GalleryItems :items="pictures" v-on:imageClick="openModal" />
     </template>
-    <template  v-if="isLoading">
+    <template v-if="isLoading">
       <div class="loader-container">
-          <img src="../assets/infinity.gif"/>
+        <img src="../assets/infinity.gif" />
       </div>
     </template>
-    <v-dialog v-model="isModalOpen" fullscreen hide-overlay>
+    <Modal :visible="isModalOpen">
       <ImageDetails
         :imageDetail="currentImageData"
         :isLoading="true"
         v-on:closeModal="isModalOpen = false"
       />
-    </v-dialog>
-  </v-container>
+    </Modal>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .home {
+  width: 100%;
+  padding: 12px;
+  margin-right: auto;
+  margin-left: auto;
   .loader-container {
     display: flex;
     justify-content: center;
@@ -35,6 +39,7 @@ import Component from "vue-class-component";
 import imageService from "../services/image.service";
 import GalleryItems from "../components/GalleryItems.vue";
 import ImageDetails from "../components/ImageDetails.vue";
+import Modal from "../components/Modal.vue";
 import HomePayload from "../interfaces/home.interface";
 import ImageDetail from "../interfaces/image.interface";
 
@@ -42,6 +47,7 @@ import ImageDetail from "../interfaces/image.interface";
   components: {
     GalleryItems,
     ImageDetails,
+    Modal,
   },
 })
 export default class Home extends Vue {
@@ -65,15 +71,16 @@ export default class Home extends Vue {
   mounted() {
     this.getImages();
     window.onscroll = () => {
-      let isInBottom =
-        Math.ceil(document.documentElement.scrollTop + window.innerHeight) ===
-        Math.ceil(document.documentElement.offsetHeight);
-      if (isInBottom) {
+      let difference =
+        document.documentElement.offsetHeight -
+        (document.documentElement.scrollTop + window.innerHeight);
+
+      if (difference <= 1) {
         this.getImages();
       }
     };
   }
-  
+
   get page(): number {
     return this.payload.page;
   }

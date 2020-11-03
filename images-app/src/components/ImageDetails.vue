@@ -1,80 +1,189 @@
 <template>
-  <v-card class="image-details">
-    <v-row justify="end" class="icons-container py-3">
-      <v-icon class="mr-3" v-on:click="changeZoom">
-        mdi-magnify-plus
-      </v-icon>
-      <v-icon  class="mr-3"  v-on:click="changeRatio">
-        mdi-panorama-horizontal
-      </v-icon>
-      <v-icon v-on:click="closeModal">
-        mdi-close
-      </v-icon>
-    </v-row>
-    <v-carousel v-model="carouselModel">
-      <v-carousel-item v-for="picture in images" :key="picture">
-        <v-row class="image-container" justify="center">
-          <v-img
-            :aspect-ratio="ratio"
-            :src="picture"
-            :width="width"
-            class="grey lighten-2 image"
-          >
-            <template v-slot:placeholder>
-              <v-row class="fill-height ma-0" align="center" justify="center">
-                <v-progress-circular
-                  indeterminate
-                  color="grey lighten-5"
-                ></v-progress-circular>
-              </v-row>
-            </template>
-          </v-img>
-        </v-row>
-      </v-carousel-item>
-    </v-carousel>
-    <v-col class="footer-container">
-      <v-card-title> Author: {{ imageDetail.author }} </v-card-title>
-      <v-card-subtitle> Camera: {{ imageDetail.camera }} </v-card-subtitle>
-      <v-btn class="mx-2" fab dark small color="primary" v-on:click="share">
-        <v-icon dark>
-          mdi-share
-        </v-icon>
-      </v-btn>
-      <v-row>
-        <div  class="pl-4" v-for="hashTag in hashTags" :key="hashTag">
-          <v-chip color="secondary" class="ma-2" small>
-            {{ hashTag }}
-          </v-chip>
+  <div class="image-details">
+    <div class="image-details__header">
+      <i class="material-icons" v-on:click="isPanoramic = !isPanoramic">
+        panorama_wide_angle
+      </i>
+      <i class="material-icons" v-on:click="closeModal">
+        close
+      </i>
+    </div>
+    <div class="image-details__carousel">
+      <div
+        v-for="picture in images"
+        :key="picture"
+        class="image-details__carousel__item"
+      >
+        <div
+          v-bind:class="[
+            isPanoramic
+              ? 'image-details__carousel__item__wrapper image-details__carousel__item__wrapper--panoramic'
+              : 'image-details__carousel__item__wrapper',
+          ]"
+          v-if="picture === currentPicture"
+        >
+          <img :src="picture" :width="width" />
         </div>
-      </v-row>
-    </v-col>
-  </v-card>
+      </div>
+
+      <i
+        class="material-icons image-details__carousel__prev"
+        v-on:click="back()"
+        >keyboard_arrow_left</i
+      >
+      <i
+        class="material-icons image-details__carousel__next"
+        v-on:click="next()"
+        >keyboard_arrow_right</i
+      >
+    </div>
+
+    <div class="image-details__footer">
+      <div class="image-details__footer__title">
+        Author: {{ imageDetail.author }}
+      </div>
+      <div class="image-details__footer__subtitle">
+        Camera: {{ imageDetail.camera }}
+      </div>
+      <button class="image-details__footer__share" v-on:click="share">
+        <i class="material-icons">
+          share
+        </i>
+      </button>
+      <div class="image-details__footer__hashtags">
+        <span
+          class="image-details__footer__hashtags__item"
+          v-for="hashTag in hashTags"
+          :key="hashTag"
+        >
+          {{ hashTag }}
+        </span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .image-details {
-  .icons-container {
-    width: 100%;
-  }
+  &__header {
+    display: flex;
+    justify-content: flex-end;
 
-  .image-container {
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-
-    .image {
-      flex: none;
+    .material-icons {
+      cursor: pointer;
+      margin-left: 6px;
     }
   }
 
-  .footer-container {
+  &__carousel {
     position: relative;
+    animation-name: fade;
+    animation-duration: 1.5s;
+    background: rgba(0, 0, 0, 0.8);
 
-    .v-btn--fab {
+    &__item {
+      max-width: 500px;
+      margin: 0 auto;
+
+      &__wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%;
+        cursor: zoom-in;
+        transition: transform 0.2s;
+        z-index: 99;
+
+        &--panoramic {
+          padding-bottom: 56.2%;
+        }
+
+        &:hover {
+          transform: scale(1.5);
+        }
+
+        img {
+          position: absolute;
+          object-fit: cover;
+          height: 100%;
+        }
+      }
+    }
+
+    &__prev,
+    &__next {
       position: absolute;
-      top: -20px;
-      z-index: 99;
+      top: 50%;
+      color: white;
+      cursor: pointer;
+      z-index: 999;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+    }
+
+    &__next {
+      right: 0;
+      border-radius: 3px 0 0 3px;
+    }
+  }
+
+  &__footer {
+    position: relative;
+    min-height: 100px;
+
+    &__title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    &__subtitle {
+      font-size: 14px;
+    }
+
+    &__subtitle,
+    &__title {
+      padding: 8px 8px 0 8px;
+    }
+
+    &__share {
+      position: absolute;
+      top: -13px;
       right: 6px;
+      color: white;
+      background: #0d47a1;
+      border-radius: 50%;
+      height: 44px;
+      width: 44px;
+      margin: 0;
+      padding: 0;
+      border: none;
+      z-index: 999;
+    }
+
+    &__hashtags {
+      margin: 14px 8px;
+      display: flex;
+      flex-wrap: wrap;
+
+      &__item {
+        background: lightgray;
+        color: black;
+        border-radius: 18px;
+        margin-right: 6px;
+        font-size: 14px;
+        padding: 6px;
+        margin-top:6px;
+      }
+    }
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0.4;
+    }
+    to {
+      opacity: 1;
     }
   }
 }
@@ -89,12 +198,16 @@ import ImageDetail from "../interfaces/image.interface";
 @Component
 export default class ImageDetails extends Vue {
   @Prop({ default: () => {} }) imageDetail!: ImageDetail;
-  ratio: number = 1;
-  width: string = "50%";
-  carouselModel: number = 0;
+  panoramic: boolean = false;
+  width: string = "100%";
+  currentPicture = "";
+
+  mounted() {
+    this.currentPicture = this.imageDetail.full_picture;
+  }
 
   get hashTags() {
-    const hashes = [... this.imageDetail.tags.split(" ").slice(0, -1)!];
+    const hashes = [...this.imageDetail.tags.split(" ").slice(0, -1)!];
     return hashes;
   }
 
@@ -102,23 +215,36 @@ export default class ImageDetails extends Vue {
     return [this.imageDetail.full_picture, this.imageDetail.cropped_picture];
   }
 
-  changeRatio() {
-    this.ratio = this.ratio === 1 ? 16 / 9 : 1;
+  get isPanoramic() {
+    return this.panoramic;
+  }
+
+  set isPanoramic(newValue: boolean) {
+    console.log(newValue);
+    this.panoramic = newValue;
+  }
+
+  back() {
+    this.currentPicture = this.imageDetail.full_picture;
+  }
+
+  next() {
+    this.currentPicture = this.imageDetail.cropped_picture;
   }
 
   changeZoom() {
-    this.width = this.width === "50%" ? "100%" : "50%";
+    this.width = this.width === "100%" ? "150%" : "100%";
   }
 
   closeModal() {
     this.$emit("closeModal");
-    this.ratio = 1;
+    this.isPanoramic = false;
     this.width = "50%";
   }
 
   share() {
-    const url ="http://twitter.com/share?text=I found this pretty pic! &url=";
-    window.open( `${url}${window.location}${this.imageDetail.id}`, "_blank");
+    const url = "http://twitter.com/share?text=I found this pretty pic! &url=";
+    window.open(`${url}${window.location}${this.imageDetail.id}`, "_blank");
   }
 }
 </script>

@@ -19,6 +19,8 @@
 <style lang="scss" scoped>
 .gallery-items {
   max-width: 1200px;
+  margin: 0 auto;
+
   &__container {
     display: grid;
     grid-template-columns: auto auto auto auto;
@@ -32,8 +34,9 @@
 
   &__image-container {
     cursor: pointer;
-    padding: 12px;
-    flex-grow: 10;
+    padding: 11px;
+    flex-grow: 1;
+    margin: 1px;
   }
 
   &__image {
