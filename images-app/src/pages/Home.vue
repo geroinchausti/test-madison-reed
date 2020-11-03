@@ -1,26 +1,19 @@
 <template>
   <v-container class="home">
-    <template v-if="!isLoading">
+    <template>
       <GalleryItems :items="pictures" v-on:imageClick="openModal" />
-      <v-row class="pagination" justify="end">
-        <v-pagination
-          v-on:input="getImages"
-          v-model="page"
-          :length="pageCount"
-          :total-visible="7"
-        ></v-pagination>
-      </v-row>
     </template>
-    <template v-else>
+    <template  v-if="isLoading">
       <div class="loader-container">
-        <v-progress-circular
-          indeterminate
-          color="primary"
-        ></v-progress-circular>
+          <img src="../assets/infinity.gif"/>
       </div>
     </template>
     <v-dialog v-model="isModalOpen" fullscreen hide-overlay>
-      <ImageDetails :imageDetail="currentImageData" :isLoading="true"  v-on:closeModal="isModalOpen=false"/>
+      <ImageDetails
+        :imageDetail="currentImageData"
+        :isLoading="true"
+        v-on:closeModal="isModalOpen = false"
+      />
     </v-dialog>
   </v-container>
 </template>
@@ -31,7 +24,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 200px;
   }
 }
 </style>
@@ -71,12 +64,16 @@ export default class Home extends Vue {
 
   mounted() {
     this.getImages();
+    window.onscroll = () => {
+      let isInBottom =
+        Math.ceil(document.documentElement.scrollTop + window.innerHeight) ===
+        Math.ceil(document.documentElement.offsetHeight);
+      if (isInBottom) {
+        this.getImages();
+      }
+    };
   }
-
-  get pageCount(): number {
-    return this.payload.pageCount;
-  }
-
+  
   get page(): number {
     return this.payload.page;
   }
@@ -120,10 +117,16 @@ export default class Home extends Vue {
   }
 
   private async getImages(): Promise<void> {
-    this.isLoading = true;
-    const response = await imageService.getImages({ page: this.page });
-    this.payload = { ...response };
-    this.isLoading = false;
+    if (this.payload.hasMore && !this.isLoading) {
+      this.isLoading = true;
+      const response = await imageService.getImages({ page: this.page });
+      this.payload = {
+        ...response,
+        pictures: [...this.pictures, ...response.pictures],
+      };
+      this.page = this.page + 1;
+      this.isLoading = false;
+    }
   }
 }
 </script>

@@ -1,37 +1,45 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col
+  <div class="gallery-items">
+    <div class="gallery-items__container">
+      <div
         v-for="picture in items"
-        :key="picture.id"
-        class="d-flex child-flex"
-        cols="4"
-        xs
+        :key="picture.cropped_picture"
+        class="gallery-items__image-container"
       >
-        <v-img
+        <img
+          class="gallery-items__image"
           :src="picture.cropped_picture"
-          aspect-ratio="1"
-          class="grey lighten-2 image"
           v-on:click="imageClickEvent(picture.id)"
-        >
-          <template v-slot:placeholder>
-            <v-row class="fill-height ma-0" align="center" justify="center">
-              <v-progress-circular
-                indeterminate
-                color="grey lighten-5"
-              ></v-progress-circular>
-            </v-row>
-          </template>
-        </v-img>
-      </v-col>
-    </v-row>
-  </v-container>
+        />
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-  .v-image {
-    cursor: pointer;
+.gallery-items {
+  max-width: 1200px;
+  &__container {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
   }
+
+  @media only screen and (max-width: 768px) {
+    &__container {
+      grid-template-columns: auto;
+    }
+  }
+
+  &__image-container {
+    cursor: pointer;
+    padding: 12px;
+    flex-grow: 10;
+  }
+
+  &__image {
+    width: 100%;
+  }
+}
 </style>
 
 <script lang="ts">

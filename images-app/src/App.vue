@@ -1,27 +1,35 @@
 <template>
-  <v-app>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
+  <div class="app-container">
+    <AppBar backgroundColor="#0d47a1" color="white">
+      <div>
         <h3>{{ title }}</h3>
       </div>
-    </v-app-bar>
+    </AppBar>
     <v-main>
       <Home />
     </v-main>
-  </v-app>
+  </div>
 </template>
+
+<style lang="scss">
+  body {
+     font-family: "Arial", Times, serif;
+  }
+</style>
 
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
 import Home from "./pages/Home.vue";
+import AppBar from "./components/AppBar.vue";
 
 @Component({
   components: {
     Home,
+    AppBar
   },
 })
 export default class App extends Vue {
-  title: string = "IMAGE GALLERY";
+  title: string = "IMAGE GALLERY"; 
 }
 </script>
